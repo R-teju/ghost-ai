@@ -2,15 +2,22 @@ import { auth, createClerkClient } from "@clerk/nextjs/server"
 import { checkProjectAccess } from "@/lib/project-access"
 import { liveblocks, getUserColor } from "@/lib/liveblocks"
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
+const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+})
 
 export async function POST(request: Request) {
   const { userId } = await auth()
+
   if (!userId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    )
   }
 
   let room = ""
+
   try {
     const json = await request.json()
     room = json.room
@@ -19,45 +26,52 @@ export async function POST(request: Request) {
   }
 
   if (!room) {
-    return Response.json({ error: "Room parameter is required" }, { status: 400 })
+    return Response.json(
+      { error: "Room parameter is required" },
+      { status: 400 }
+    )
   }
 
   try {
-    // 1. Verify project access using the existing access helper
+    // Verify project access
     const { hasAccess, project } = await checkProjectAccess(room)
 
-    // 2. Return 403 for unauthorized project access
     if (!hasAccess || !project) {
-      return Response.json({ error: "Forbidden" }, { status: 403 })
+      return Response.json(
+        { error: "Forbidden" },
+        { status: 403 }
+      )
     }
 
-    // 3. Ensure the liveblocks room exists and the user has access
+    // Ensure the Liveblocks room exists
     await liveblocks.getOrCreateRoom(room, {
-      defaultAccesses: [], // Private room by default
+      defaultAccesses: [],
       usersAccesses: {
         [userId]: ["room:write"],
       },
     })
 
-    // Update permissions in case the room was previously created as private
+    // Ensure current user has access
     await liveblocks.updateRoom(room, {
       usersAccesses: {
         [userId]: ["room:write"],
       },
     })
 
-    // Fetch user details from Clerk
+    // Get Clerk user
     const clerkUser = await clerk.users.getUser(userId)
+
     const displayName =
-      [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") ||
+      [clerkUser.firstName, clerkUser.lastName]
+        .filter(Boolean)
+        .join(" ") ||
       clerkUser.username ||
       "Collaborator"
 
-    // Generate colors deterministically
     const { avatarColor, cursorColor } = getUserColor(userId)
 
-    // 4. Return a session token with userInfo details
-    const { status, body } = await liveblocks.identifyUser(userId, {
+    // Create Liveblocks access-token session
+    const session = liveblocks.prepareSession(userId, {
       userInfo: {
         name: displayName,
         avatar: clerkUser.imageUrl,
@@ -66,9 +80,22 @@ export async function POST(request: Request) {
       },
     })
 
+    // Give this user access to this room
+    session.allow(room, ["*:write"])
+
+    // Authorize
+    const { status, body } = await session.authorize()
+
     return new Response(body, { status })
   } catch (error) {
-    console.error("Failed to authenticate with Liveblocks:", error)
-    return Response.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error(
+      "Failed to authenticate with Liveblocks:",
+      error
+    )
+
+    return Response.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
   }
 }
