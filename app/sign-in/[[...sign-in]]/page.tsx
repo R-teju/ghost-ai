@@ -1,204 +1,210 @@
-"use client"
-
-import * as React from "react"
-import { useSignIn } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
-import { History, Share2, FileText, Loader2, AlertCircle } from "lucide-react"
+import { SignIn } from "@clerk/nextjs"
+import { dark } from "@clerk/ui/themes"
+import { History, Share2, FileText, Zap, Users, Lock } from "lucide-react"
 
 export default function SignInPage() {
-  const { signIn, errors, fetchStatus } = useSignIn()
-  const router = useRouter()
-
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
-  const [localError, setLocalError] = React.useState("")
-
-  const loading = fetchStatus === "fetching"
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!signIn) return
-
-    setLocalError("")
-
-    try {
-      await signIn.password({
-        emailAddress: email,
-        password,
-      })
-
-      if (signIn.status === "complete") {
-        await signIn.finalize({
-          navigate: ({ decorateUrl }) => {
-            const url = decorateUrl("/editor")
-            if (url.startsWith("http")) {
-              window.location.href = url
-            } else {
-              router.push(url)
-            }
-          },
-        })
-      } else {
-        setLocalError(`Authentication did not complete. Status: ${signIn.status}`)
-      }
-    } catch (err: any) {
-      console.error(err)
-      setLocalError(err.message || "Invalid email or password.")
-    }
-  }
-
-  const errs = errors as any
-  const activeError = errs?.global?.[0]?.message || errs?.raw?.[0]?.message || localError
-
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2 bg-zinc-950 text-zinc-100 antialiased select-none">
-      {/* Left panel: Info (Visible only on large screens) */}
-      <div className="hidden lg:flex flex-col justify-between p-12 border-r border-zinc-900 bg-zinc-950">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-full bg-indigo-650 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-600/25">
-            G
-          </div>
-          <span className="text-xl font-bold tracking-tight text-white">Ghost AI</span>
-        </div>
-        
-        <div className="flex-1 flex flex-col justify-center space-y-10 max-w-md my-auto">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-tight">
-              Design systems at the speed of thought.
-            </h1>
-            <p className="text-zinc-400 text-[15px] leading-relaxed">
-              Describe your architecture in plain English. Ghost AI maps it to a shared canvas your whole team can refine in real time.
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/5 text-indigo-400">
-                <History className="size-5" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-white">
-                  AI Architecture Generation
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Describe your system, AI maps it to nodes and edges on a live canvas.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/5 text-indigo-400">
-                <Share2 className="size-5" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-white">
-                  Real-time Collaboration
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Live cursors, presence indicators, and shared node editing across your team.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/5 text-indigo-400">
-                <FileText className="size-5" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-white">
-                  Instant Spec Generation
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Export a complete Markdown technical spec directly from the canvas graph.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="text-xs text-zinc-500">
-          &copy; {new Date().getFullYear()} Ghost AI. All rights reserved.
-        </div>
+    <div className="relative min-h-screen bg-[#0d0d14] text-zinc-100 antialiased overflow-hidden">
+      {/* Animated background glows */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-indigo-600/10 blur-[120px]" />
+        <div className="absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-cyan-500/8 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[400px] w-[400px] rounded-full bg-violet-600/5 blur-[100px]" />
       </div>
 
-      {/* Right panel: Custom credentials form */}
-      <div className="flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-md flex flex-col items-center">
-          {/* Logo only shown on small screens */}
-          <div className="flex lg:hidden items-center gap-2.5 mb-8">
-            <div className="h-8 w-8 rounded-full bg-indigo-650 flex items-center justify-center text-white font-bold text-base shadow-md shadow-indigo-600/25">
-              G
-            </div>
-            <span className="text-lg font-bold tracking-tight text-white">Ghost AI</span>
-          </div>
-          
-          <div className="w-full border border-zinc-800 bg-zinc-900/40 backdrop-blur-md rounded-2xl p-8 space-y-6 shadow-xl shadow-black/40">
-            <div className="space-y-1.5 text-center">
-              <h2 className="text-xl font-bold tracking-tight text-white">Sign in to your account</h2>
-              <p className="text-xs text-zinc-400">Enter your credentials below to access the editor.</p>
-            </div>
+      {/* Subtle grid overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "linear-gradient(#6366f1 1px, transparent 1px), linear-gradient(90deg, #6366f1 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
-            {activeError && (
-              <div className="p-3 bg-red-950/40 border border-red-900/40 rounded-lg flex items-start gap-2.5 text-xs text-red-400 animate-in fade-in duration-200">
-                <AlertCircle className="size-4 shrink-0 mt-0.5" />
-                <span>{activeError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5 flex flex-col">
-                <label htmlFor="email-input" className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">
-                  Email Address
-                </label>
-                <input
-                  id="email-input"
-                  type="email"
-                  required
-                  disabled={loading}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg h-10 px-3 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-colors"
-                />
-                {errs?.fields?.emailAddress && (
-                  <span className="text-[10px] text-red-450 mt-1">{errs.fields.emailAddress.message}</span>
-                )}
-              </div>
-
-              <div className="space-y-1.5 flex flex-col">
-                <label htmlFor="password-input" className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">
-                  Password
-                </label>
-                <input
-                  id="password-input"
-                  type="password"
-                  required
-                  disabled={loading}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg h-10 px-3 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50 transition-colors"
-                />
-                {errs?.fields?.password && (
-                  <span className="text-[10px] text-red-450 mt-1">{errs.fields.password.message}</span>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading || !email.trim() || !password.trim()}
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm h-10 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-indigo-600/10"
+      <div className="relative grid min-h-screen grid-cols-1 lg:grid-cols-2">
+        {/* ── Left panel ── */}
+        <div className="hidden lg:flex flex-col justify-between p-14 border-r border-white/5">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            {/* Ghost icon SVG */}
+            <div className="relative flex h-10 w-10 items-center justify-center">
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500/30 to-cyan-500/10 blur-sm" />
+              <svg
+                className="relative z-10 h-7 w-7 drop-shadow-[0_0_8px_rgba(99,102,241,0.7)]"
+                viewBox="0 0 64 80"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Continue"
-                )}
-              </button>
-            </form>
+                <path
+                  d="M32 4C17.088 4 5 16.088 5 31v29l9-7 9 7 9-7 9 7 9-7V31C50 16.088 37.912 4 32 4Z"
+                  fill="url(#ghostGrad1)"
+                />
+                <defs>
+                  <linearGradient id="ghostGrad1" x1="5" y1="4" x2="50" y2="60" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#a5b4fc" />
+                    <stop offset="1" stopColor="#818cf8" />
+                  </linearGradient>
+                </defs>
+                {/* Eyes */}
+                <ellipse cx="22" cy="29" rx="4" ry="5" fill="#0d0d14" />
+                <ellipse cx="42" cy="29" rx="4" ry="5" fill="#0d0d14" />
+                <ellipse cx="22" cy="29" rx="2" ry="2.5" fill="#22d3ee" />
+                <ellipse cx="42" cy="29" rx="2" ry="2.5" fill="#22d3ee" />
+              </svg>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl font-bold tracking-tight text-white">GHOST</span>
+              <span className="text-xl font-bold tracking-tight text-cyan-400">AI</span>
+            </div>
+          </div>
+
+          {/* Hero text */}
+          <div className="flex-1 flex flex-col justify-center space-y-12 max-w-md my-auto">
+            <div className="space-y-5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-indigo-500/10 px-3.5 py-1.5">
+                <Zap className="size-3.5 text-indigo-400" />
+                <span className="text-xs font-semibold text-indigo-300 tracking-wide uppercase">AI-powered platform</span>
+              </div>
+              <h1 className="text-4xl font-bold tracking-tight text-white leading-[1.15]">
+                Design systems at the{" "}
+                <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                  speed of thought.
+                </span>
+              </h1>
+              <p className="text-zinc-400 text-[15px] leading-relaxed">
+                Describe your architecture in plain English. Ghost AI maps it to a shared canvas your whole team can refine in real time.
+              </p>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-5">
+              {[
+                {
+                  icon: History,
+                  title: "AI Architecture Generation",
+                  desc: "Describe your system, AI maps it to nodes and edges on a live canvas.",
+                },
+                {
+                  icon: Users,
+                  title: "Real-time Collaboration",
+                  desc: "Live cursors, presence indicators, and shared node editing across your team.",
+                },
+                {
+                  icon: FileText,
+                  title: "Instant Spec Generation",
+                  desc: "Export a complete Markdown technical spec directly from the canvas graph.",
+                },
+              ].map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="flex gap-4 group">
+                  <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/5 text-indigo-400 group-hover:border-indigo-500/40 group-hover:bg-indigo-500/10 transition-all duration-300">
+                    <Icon className="size-5" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <h3 className="text-sm font-semibold text-white">{title}</h3>
+                    <p className="text-xs text-zinc-400 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-zinc-600">© {new Date().getFullYear()} Ghost AI. All rights reserved.</p>
+            <div className="flex items-center gap-1.5 text-xs text-zinc-600">
+              <Lock className="size-3" />
+              <span>Enterprise-grade security</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Right panel ── */}
+        <div className="flex items-center justify-center p-6 lg:p-12">
+          <div className="w-full max-w-md">
+            {/* Logo — mobile only */}
+            <div className="flex lg:hidden items-center gap-3 mb-10 justify-center">
+              <div className="relative flex h-9 w-9 items-center justify-center">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500/30 to-cyan-500/10 blur-sm" />
+                <svg
+                  className="relative z-10 h-6 w-6 drop-shadow-[0_0_8px_rgba(99,102,241,0.7)]"
+                  viewBox="0 0 64 80"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M32 4C17.088 4 5 16.088 5 31v29l9-7 9 7 9-7 9 7 9-7V31C50 16.088 37.912 4 32 4Z"
+                    fill="url(#ghostGrad2)"
+                  />
+                  <defs>
+                    <linearGradient id="ghostGrad2" x1="5" y1="4" x2="50" y2="60" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#a5b4fc" />
+                      <stop offset="1" stopColor="#818cf8" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="22" cy="29" rx="4" ry="5" fill="#0d0d14" />
+                  <ellipse cx="42" cy="29" rx="4" ry="5" fill="#0d0d14" />
+                  <ellipse cx="22" cy="29" rx="2" ry="2.5" fill="#22d3ee" />
+                  <ellipse cx="42" cy="29" rx="2" ry="2.5" fill="#22d3ee" />
+                </svg>
+              </div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-bold tracking-tight text-white">GHOST</span>
+                <span className="text-lg font-bold tracking-tight text-cyan-400">AI</span>
+              </div>
+            </div>
+
+            {/* Clerk SignIn component */}
+            <SignIn
+              appearance={{
+                theme: dark,
+                variables: {
+                  colorPrimary: "#6366f1",
+                  colorBackground: "#13131f",
+                  colorForeground: "#f4f4f5",
+                  colorNeutral: "#3f3f46",
+                  borderRadius: "0.75rem",
+                  fontSize: "0.875rem",
+                },
+                elements: {
+                  rootBox: "w-full",
+                  cardBox:
+                    "w-full shadow-2xl border border-white/8 bg-[#13131f]/90 backdrop-blur-2xl rounded-2xl overflow-hidden",
+                  card: "bg-transparent shadow-none border-none p-8 w-full",
+                  header: "mb-6",
+                  headerTitle:
+                    "text-white font-bold text-xl tracking-tight",
+                  headerSubtitle: "text-zinc-400 text-sm mt-1",
+                  logoBox: "hidden",
+                  dividerLine: "bg-white/8",
+                  dividerText:
+                    "text-zinc-600 uppercase tracking-widest text-[10px] bg-[#13131f]",
+                  socialButtonsBlockButton:
+                    "border border-white/15 bg-white/5 hover:bg-white/10 text-white hover:text-white transition-all duration-200 rounded-xl h-11 font-medium text-sm",
+                  socialButtonsBlockButtonText: "text-white font-medium opacity-100",
+                  socialButtonsBlockButtonArrow: "text-zinc-400",
+                  formFieldLabel:
+                    "text-zinc-400 font-medium text-xs uppercase tracking-wider mb-1.5",
+                  formFieldInput:
+                    "bg-[#0d0d14] border border-white/10 text-zinc-100 placeholder-zinc-600 focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/30 rounded-xl h-11 text-sm transition-all duration-200",
+                  formFieldInputShowPasswordButton: "text-zinc-500 hover:text-zinc-300",
+                  formButtonPrimary:
+                    "bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold border-none transition-all duration-200 rounded-xl h-11 text-sm shadow-lg shadow-indigo-600/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 cursor-pointer w-full",
+                  footerActionText: "text-zinc-500 text-sm",
+                  footerActionLink:
+                    "text-indigo-400 hover:text-indigo-300 font-semibold transition-colors",
+                  footer: "bg-transparent border-t border-white/5 pt-4",
+                  identityPreviewText: "text-zinc-300",
+                  identityPreviewEditButtonLink:
+                    "text-indigo-400 hover:text-indigo-300",
+                  formResendCodeLink: "text-indigo-400 hover:text-indigo-300",
+                  otpCodeFieldInput:
+                    "border border-white/10 bg-[#0d0d14] text-zinc-100 rounded-xl",
+                  alertText: "text-sm",
+                  internal_backLink: "text-indigo-400",
+                },
+              }}
+            />
           </div>
         </div>
       </div>

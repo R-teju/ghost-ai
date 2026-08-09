@@ -127,3 +127,24 @@
     @apply font-sans;
     }
 }
+
+/* ── Clerk social button text override ── */
+/* The dark theme applies its own low-opacity color with higher specificity.
+   These !important rules target Clerk's real internal class names directly. */
+.cl-socialButtonsBlockButtonText,
+.cl-internal-socialButtonsBlockButtonText {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.cl-socialButtonsBlockButton,
+.cl-internal-socialButtonsBlockButton {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.cl-socialButtonsBlockButton span,
+.cl-socialButtonsBlockButton p {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
