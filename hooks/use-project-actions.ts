@@ -82,6 +82,7 @@ export function useProjectActions() {
       const project = await res.json()
       setIsCreateOpen(false)
       // Navigate to the new workspace (aligned with project id)
+      router.refresh()
       router.push(`/editor/${project.id}`)
     } catch (error) {
       console.error("Error creating project:", error)
