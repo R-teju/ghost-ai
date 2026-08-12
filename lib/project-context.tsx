@@ -19,6 +19,7 @@ interface ProjectContextType {
   sharedProjects: Project[]
   activeProject: Project | null
   setActiveProject: (project: Project | null) => void
+  addProject: (project: Project) => void
   aiSidebarOpen: boolean
   setAiSidebarOpen: (open: boolean) => void
   starterTemplatesOpen: boolean
@@ -44,6 +45,16 @@ export function ProjectProvider({
   const pathname = usePathname()
 
   // Keep state in sync with server props
+  const addProject = React.useCallback((project: Project) => {
+    setProjects((prev) => {
+      // Prevent duplicates
+      if (prev.some((p) => p.id === project.id)) {
+        return prev
+      }
+
+      return [project, ...prev]
+    })
+  }, [])
   React.useEffect(() => {
     setProjects(initialOwned)
     setSharedProjects(initialShared)
@@ -72,6 +83,7 @@ export function ProjectProvider({
         sharedProjects,
         activeProject,
         setActiveProject,
+        addProject,
         aiSidebarOpen,
         setAiSidebarOpen,
         starterTemplatesOpen,

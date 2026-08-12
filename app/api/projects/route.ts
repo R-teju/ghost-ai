@@ -4,7 +4,7 @@ import { z } from "zod"
 
 const createProjectSchema = z.object({
   id: z.string().trim().optional(),
-  name: z.string().trim().optional(),
+  name: z.string().trim().min(1, "Project name is required"),
   description: z.string().trim().optional(),
 })
 
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       data: {
         id: id || undefined,
         ownerId: userId,
-        name: name || "Untitled Project",
+        name: name,
         description: description || null,
         status: "DRAFT",
       },

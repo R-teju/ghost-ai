@@ -1,5 +1,6 @@
 import { PrismaClient } from "../app/generated/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
+import pg from "pg"
 
 const databaseUrl = process.env.DATABASE_URL || ""
 
@@ -13,10 +14,11 @@ const createPrismaClient = () => {
       accelerateUrl: databaseUrl,
     })
   } else {
-    const adapter = new PrismaPg({
+    const pool = new pg.Pool({
       connectionString: databaseUrl,
       ssl: { rejectUnauthorized: false }
     })
+    const adapter = new PrismaPg(pool)
     return new PrismaClient({ adapter })
   }
 }

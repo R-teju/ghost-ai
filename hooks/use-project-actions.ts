@@ -81,9 +81,10 @@ export function useProjectActions() {
 
       const project = await res.json()
       setIsCreateOpen(false)
-      // Navigate to the new workspace (aligned with project id)
-      router.refresh()
+      // Navigate directly — the layout re-fetches projects on next render
       router.push(`/editor/${project.id}`)
+      // Refresh in background so sidebar list stays fresh on return
+      router.refresh()
     } catch (error) {
       console.error("Error creating project:", error)
     } finally {
@@ -134,9 +135,9 @@ export function useProjectActions() {
       const activeWorkspacePath = `/editor/${deleteId}`
       if (pathname === activeWorkspacePath) {
         router.push("/editor")
-      } else {
-        router.refresh()
       }
+      // Always refresh to update the project list in the sidebar (layout.tsx)
+      router.refresh()
     } catch (error) {
       console.error("Error deleting project:", error)
     } finally {

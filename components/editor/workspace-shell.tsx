@@ -141,7 +141,12 @@ export function WorkspaceShell({ project }: WorkspaceShellProps) {
           isThinking: false,
         }}
       >
-        <ClientSideSuspense fallback={<div className="flex h-screen w-screen items-center justify-center bg-zinc-950 text-zinc-400">Loading workspace...</div>}>
+        <ClientSideSuspense fallback={
+          <div className="flex h-screen w-screen bg-zinc-950">
+            {/* Canvas skeleton */}
+            <div className="flex-1 m-4 rounded-2xl bg-zinc-900/30 border border-zinc-800 animate-pulse" />
+          </div>
+        }>
           <WorkspaceShellInner project={project} />
         </ClientSideSuspense>
       </RoomProvider>
@@ -285,7 +290,22 @@ function WorkspaceShellInner({ project }: WorkspaceShellProps) {
       title: "Event-Driven Analytics",
       description: "Queue pipelines with ingest consumers and data warehouse.",
       prompt: "Design an event-driven analytics system featuring a high-throughput message queue (like Kafka/RabbitMQ), ingestion consumers, databases for cold storage, and real-time dashboard notification handlers."
-    }
+    },
+    {
+      title: "Microservices Platform",
+      description: "Service mesh, API gateway, discovery, and observability stack.",
+      prompt: "Design a production-grade microservices platform with an API Gateway handling routing and rate-limiting, a Service Registry for discovery, an Auth Service issuing JWT tokens, a Notification Service publishing events, and a centralized Observability stack with logs, metrics, and distributed tracing."
+    },
+    {
+      title: "Real-Time Chat App",
+      description: "WebSocket server, presence, message persistence, and push.",
+      prompt: "Design a scalable real-time chat application architecture. Include a WebSocket server cluster behind a load balancer, a Presence Service tracking online users with Redis pub/sub, a Message Store backed by a time-series or NoSQL database, and a Push Notification Service for mobile clients."
+    },
+    {
+      title: "ML Training Pipeline",
+      description: "Data ingestion, feature store, model training, and serving.",
+      prompt: "Design a machine learning training and serving pipeline. Include a Data Ingestion layer pulling from raw sources, a Feature Store for computed features, a Model Training scheduler with GPU workers, a Model Registry to version artifacts, and a low-latency Model Serving API with A/B routing."
+    },
   ]
 
   return (
